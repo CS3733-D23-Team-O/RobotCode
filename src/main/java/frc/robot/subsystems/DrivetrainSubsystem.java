@@ -42,15 +42,15 @@ import frc.robot.Constants.DrivetrainConstants;
 public class DrivetrainSubsystem extends PIDSubsystem {
 
     public final WPI_TalonFX leftLeader = new WPI_TalonFX(DrivetrainConstants.LEFT_LEADER_CHANNEL);
-    private final WPI_TalonFX leftFollower = new WPI_TalonFX(DrivetrainConstants.LEFT_FOLLOWER_CHANNEL);
+    // private final WPI_TalonFX leftFollower = new WPI_TalonFX(DrivetrainConstants.LEFT_FOLLOWER_CHANNEL);
 
     public final WPI_TalonFX rightLeader = new WPI_TalonFX(DrivetrainConstants.RIGHT_LEADER_CHANNEL);
-    private final WPI_TalonFX rightFollower = new WPI_TalonFX(DrivetrainConstants.RIGHT_FOLLOWER_CHANNEL);
+    // private final WPI_TalonFX rightFollower = new WPI_TalonFX(DrivetrainConstants.RIGHT_FOLLOWER_CHANNEL);
 
-    private final MotorControllerGroup leftSide = new MotorControllerGroup(leftLeader, leftFollower);
-    private final MotorControllerGroup rightSide = new MotorControllerGroup(rightLeader, rightFollower);
+    // private final MotorControllerGroup leftSide = new MotorControllerGroup(leftLeader, leftFollower);
+    // private final MotorControllerGroup rightSide = new MotorControllerGroup(rightLeader, rightFollower);
 
-    public final DifferentialDrive differentialDrive = new DifferentialDrive(leftSide, rightSide);
+    public final DifferentialDrive differentialDrive = new DifferentialDrive(leftLeader, rightLeader);
 
     // Objects for PID tracking
     public final AHRS navx = new AHRS(SPI.Port.kMXP);
@@ -79,26 +79,26 @@ public class DrivetrainSubsystem extends PIDSubsystem {
         limeLight = robotContainer.limeLightSubsystem;
         // Reset configuration to defaults
         leftLeader.configFactoryDefault();
-        leftFollower.configFactoryDefault();
+        // leftFollower.configFactoryDefault();
         rightLeader.configFactoryDefault();
-        rightFollower.configFactoryDefault();
+        // rightFollower.configFactoryDefault();
 
         // Configure the Followers
-        leftFollower.follow(leftLeader);
-        rightFollower.follow(rightLeader);
+        // leftFollower.follow(leftLeader);
+        // rightFollower.follow(rightLeader);
 
         // Configure invert type on the motors
-        leftLeader.setInverted(true);
-        leftFollower.setInverted(true);
+        // leftLeader.setInverted(true);
+        // leftFollower.setInverted(true);
         // leftLeader.setInverted(true);
         // leftFollower.setInverted(true);
         rightLeader.setInverted(false);
-        rightFollower.setInverted(false);
+        // rightFollower.setInverted(false);
 
-        leftFollower.setStatusFramePeriod(1, 255);
-        rightFollower.setStatusFramePeriod(1, 255);
-        leftFollower.setStatusFramePeriod(2, 255);
-        rightFollower.setStatusFramePeriod(2, 255);
+        // leftFollower.setStatusFramePeriod(1, 255);
+        // rightFollower.setStatusFramePeriod(1, 255);
+        // leftFollower.setStatusFramePeriod(2, 255);
+        // rightFollower.setStatusFramePeriod(2, 255);
 
         // Set Break Mode
         setBreakMode();
@@ -147,9 +147,9 @@ public class DrivetrainSubsystem extends PIDSubsystem {
     public void periodic() {
 
         SmartDashboard.putNumber("Left Drive Encoder", leftLeader.getSelectedSensorPosition());
-        SmartDashboard.putNumber("Left Follower Drive Encoder", leftFollower.getSelectedSensorPosition());
+        // SmartDashboard.putNumber("Left Follower Drive Encoder", leftFollower.getSelectedSensorPosition());
         SmartDashboard.putNumber("Right Drive Encoder", rightLeader.getSelectedSensorPosition());
-        SmartDashboard.putNumber("Right Follower Drive Encoder", rightFollower.getSelectedSensorPosition());
+        // SmartDashboard.putNumber("Right Follower Drive Encoder", rightFollower.getSelectedSensorPosition());
         SmartDashboard.putNumber("Difference Meters",
                 Math.abs(getDistanceMeters(leftLeader) - getDistanceMeters(rightLeader)));
         SmartDashboard.putNumber("Get left wheel speed", leftLeader.getSelectedSensorVelocity());
@@ -240,8 +240,8 @@ public class DrivetrainSubsystem extends PIDSubsystem {
     public void setBreakMode() {
         leftLeader.setNeutralMode(NeutralMode.Brake);
         rightLeader.setNeutralMode(NeutralMode.Brake);
-        leftFollower.setNeutralMode(NeutralMode.Brake);
-        rightFollower.setNeutralMode(NeutralMode.Brake);
+        // leftFollower.setNeutralMode(NeutralMode.Brake);
+        // rightFollower.setNeutralMode(NeutralMode.Brake);
     }
 
     /**
@@ -250,8 +250,8 @@ public class DrivetrainSubsystem extends PIDSubsystem {
     public void setCoastMode() {
         leftLeader.setNeutralMode(NeutralMode.Coast);
         rightLeader.setNeutralMode(NeutralMode.Coast);
-        leftFollower.setNeutralMode(NeutralMode.Coast);
-        rightFollower.setNeutralMode(NeutralMode.Coast);
+        // leftFollower.setNeutralMode(NeutralMode.Coast);
+        // rightFollower.setNeutralMode(NeutralMode.Coast);
     }
 
     /**
@@ -260,8 +260,8 @@ public class DrivetrainSubsystem extends PIDSubsystem {
     private void resetEncoders() {
         leftLeader.setSelectedSensorPosition(0);
         rightLeader.setSelectedSensorPosition(0);
-        leftFollower.setSelectedSensorPosition(0);
-        rightFollower.setSelectedSensorPosition(0);
+        // leftFollower.setSelectedSensorPosition(0);
+        // rightFollower.setSelectedSensorPosition(0);
     }
 
     /**
@@ -392,9 +392,9 @@ public class DrivetrainSubsystem extends PIDSubsystem {
      */
     public void tankDriveVolts(double leftVolts, double rightVolts) {
         leftLeader.setVoltage(leftVolts);
-        leftFollower.setVoltage(leftVolts);
+        // leftFollower.setVoltage(leftVolts);
         rightLeader.setVoltage(rightVolts);
-        rightFollower.setVoltage(rightVolts);
+        // rightFollower.setVoltage(rightVolts);
         differentialDrive.feed();
     }
 

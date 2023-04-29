@@ -15,10 +15,6 @@ import com.pathplanner.lib.PathPoint;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.Compressor;
-import edu.wpi.first.wpilibj.PneumaticHub;
-import edu.wpi.first.wpilibj.PneumaticsControlModule;
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -26,17 +22,15 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.button.POVButton;
-import frc.robot.commands.Turret.TurretSetpointCommand;
 import frc.robot.commands.drivetrain.OnTheFly;
 import frc.robot.commands.hotlineblink.AllianceColorCommand;
 import frc.robot.input.AttackThree;
 import frc.robot.input.AttackThree.AttackThreeAxis;
 import frc.robot.input.XboxOneController;
+import frc.robot.subsystems.AppDataSubsystem;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.HotlineBlinkSubsystem;
 import frc.robot.subsystems.LimeLightSubsystem;
-import frc.robot.subsystems.TurretSubsystem;
 
 /**
 * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -62,18 +56,14 @@ public class RobotContainer {
     public final LimeLightSubsystem limeLightSubsystem =
             new LimeLightSubsystem();
 
+    public final AppDataSubsystem appDataSubsystem = new AppDataSubsystem();
+
      public final DrivetrainSubsystem drivetrainSubsystem =
             new DrivetrainSubsystem(
                     Constants.DrivetrainConstants.P,
                     Constants.DrivetrainConstants.I,
                     Constants.DrivetrainConstants.D,
                     this);        
-    public final TurretSubsystem turretSubsystem =
-            new TurretSubsystem(
-                Constants.TurretConstants.P,
-                Constants.TurretConstants.I,
-                Constants.TurretConstants.D,
-                limeLightSubsystem);
 
     public final HotlineBlinkSubsystem hotlineBlinkSubsystem = new HotlineBlinkSubsystem();
 
@@ -81,20 +71,9 @@ public class RobotContainer {
 
 
     
-    // Compressor
-    public final Compressor compressor = new Compressor(1, PneumaticsModuleType.CTREPCM);
-    public boolean compressorEnabled = compressor.isEnabled();
-    public boolean compressorPressureSwitch = compressor.getPressureSwitchValue();
-    public double compressorCurrent = compressor.getCurrent();
+    
 
     public final PowerDistribution pdh = new PowerDistribution(10, ModuleType.kRev);
-
-    public final PneumaticHub pneumaticHub = new PneumaticHub(1);
-    public final PneumaticsControlModule pcm = new PneumaticsControlModule();
-
-    public double getX = 0;
-    public double getY = 0;
-    public double getRot = 0;
 
 
     /*
@@ -150,18 +129,6 @@ public class RobotContainer {
 
         // Controller Bindings
         
-
-        new POVButton(driverXboxController, 0)
-            .whenPressed(new TurretSetpointCommand(this, 0));
-
-        new POVButton(driverXboxController, 90)
-            .whenPressed(new TurretSetpointCommand(this, turretSubsystem.degreesToTicks(90)));
-
-        new POVButton(driverXboxController, 180)
-            .whenPressed(new TurretSetpointCommand(this, turretSubsystem.degreesToTicks(180)));
-
-        new POVButton(driverXboxController, 270)
-            .whenPressed(new TurretSetpointCommand(this, turretSubsystem.degreesToTicks(-90)));
 
         driverXboxController.aButton.onTrue(new InstantCommand(()-> limeLightSubsystem.setPipeline(0)));
 
