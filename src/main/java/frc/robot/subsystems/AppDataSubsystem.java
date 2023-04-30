@@ -18,6 +18,7 @@ public class AppDataSubsystem extends SubsystemBase {
     public NetworkTableEntry targetX; 
     public NetworkTableEntry targetY; 
     public NetworkTableEntry targetV;
+    NetworkTableEntry serviceRequest;
     NetworkTableEntry targetArea; 
     NetworkTableEntry targetFound;
     NetworkTableEntry ledMode;
@@ -41,8 +42,11 @@ public class AppDataSubsystem extends SubsystemBase {
     targetX = appDataTable.getEntry("x");
     targetY = appDataTable.getEntry("y");
     targetV = appDataTable.getEntry("tv");
+    serviceRequest = appDataTable.getEntry("ServiceRequest");
+
 
     SmartDashboard.putNumber("SetX", 0);
+    SmartDashboard.putString("Service Request", "defualt");
   
   }
 
@@ -68,8 +72,9 @@ public class AppDataSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("AppData X", x);
     SmartDashboard.putNumber("AppData Y", y);
     
-
-    setX((int)SmartDashboard.getNumber("SetX", 0));
+    // serviceRequest.setString(SmartDashboard.getString("Service Request", "AAh"));
+    SmartDashboard.putString("Getting Request", serviceRequest.getString("default2"));
+    // setX((int)SmartDashboard.getNumber("SetX", 0));
     
   }
 

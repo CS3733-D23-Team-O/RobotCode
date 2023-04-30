@@ -90,7 +90,7 @@ public class DrivetrainSubsystem extends PIDSubsystem {
         // Configure invert type on the motors
         // leftLeader.setInverted(true);
         // leftFollower.setInverted(true);
-        // leftLeader.setInverted(true);
+        leftLeader.setInverted(true);
         // leftFollower.setInverted(true);
         rightLeader.setInverted(false);
         // rightFollower.setInverted(false);

@@ -131,7 +131,7 @@ public class LimeLightSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("LimelightX", x);
     SmartDashboard.putNumber("LimelightY", y);
     SmartDashboard.putNumber("LimelightArea", area);
-    SmartDashboard.putNumberArray("LimelightTID", getTID().getDoubleArray(new double[6]));
+    SmartDashboard.putNumber("LimelightTID", getTID().getDouble(0));
     SmartDashboard.putBoolean("targetExists", foundTarget());
     SmartDashboard.putNumberArray("botpose", pose);
     if (getAprilTagPose() == null) return;
