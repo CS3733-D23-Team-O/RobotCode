@@ -19,15 +19,9 @@ public class AppDataSubsystem extends SubsystemBase {
     public NetworkTableEntry targetY; 
     public NetworkTableEntry targetV;
     NetworkTableEntry serviceRequest;
-    NetworkTableEntry targetArea; 
-    NetworkTableEntry targetFound;
-    NetworkTableEntry ledMode;
-    NetworkTableEntry pipeline;
-    NetworkTableEntry botpose;
-    NetworkTableEntry botpose_red;
-    NetworkTableEntry botpose_blue;
-    NetworkTableEntry ta;
-    NetworkTableEntry camMode;
+    NetworkTableEntry driveDirection;
+    NetworkTableEntry robotStatus;
+
     public boolean enableVision = true;
 
   //read values periodically
@@ -43,10 +37,12 @@ public class AppDataSubsystem extends SubsystemBase {
     targetY = appDataTable.getEntry("y");
     targetV = appDataTable.getEntry("tv");
     serviceRequest = appDataTable.getEntry("ServiceRequest");
+    driveDirection = appDataTable.getEntry("Instruction");
+    robotStatus = appDataTable.getEntry("RobotStatus");
 
 
-    SmartDashboard.putNumber("SetX", 0);
-    SmartDashboard.putString("Service Request", "defualt");
+    // SmartDashboard.putNumber("SetX", 0);
+    // SmartDashboard.putString("Service Request", "defualt");
   
   }
 
@@ -57,6 +53,71 @@ public class AppDataSubsystem extends SubsystemBase {
 
   public double getTX(){
     return appDataTable.getEntry("x").getDouble(0.0);
+  }
+
+
+  public void setRobotStatus(String status) {
+    robotStatus.setString(status);
+  }
+
+  public void setServiceRequest(String request) {
+    String[] array = {request, "Nothing"}; // TODO: fix
+    serviceRequest.setStringArray(array);
+  }
+
+  public String getAppDirection() {
+    return driveDirection.getString("Not Found");
+  }
+
+  public String[] getServiceRequestArray() {
+    return serviceRequest.getStringArray(null);
+  }
+
+  public int getTagFromRequest() {
+
+    String request;
+    try {
+      request = getServiceRequestArray()[0];
+    } catch (NullPointerException e) {
+      request = "Null";
+    }
+
+    switch (request) {
+
+      case "Meal Request":
+        return 3;
+
+      case "Flower Request":
+        return 2;
+
+      default:
+
+        return -1;
+
+    }
+
+  }
+
+  public int getTagFromLocation() {
+
+    String location;
+    try {
+      location = getServiceRequestArray()[1];
+    } catch (NullPointerException e) {
+      location = "Null";
+    }
+
+    switch (location) {
+
+      case "75 Lobby":
+        return 4;
+
+      default:
+
+        return -1;
+
+    }
+    
   }
   
 
@@ -73,7 +134,12 @@ public class AppDataSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("AppData Y", y);
     
     // serviceRequest.setString(SmartDashboard.getString("Service Request", "AAh"));
-    SmartDashboard.putString("Getting Request", serviceRequest.getString("default2"));
+    // SmartDashboard.putString("Getting Request", serviceRequest.getString("default2"));
+    SmartDashboard.putString("Direction Input", driveDirection.getString("aaaahh"));
+    SmartDashboard.putNumber("GetTagFromRequest", this.getTagFromLocation());
+    SmartDashboard.putNumber("GetTagFromLocation", this.getTagFromLocation());
+    SmartDashboard.putString("GetServiceRequest", driveDirection.getString("aaaahh"));
+
     // setX((int)SmartDashboard.getNumber("SetX", 0));
     
   }

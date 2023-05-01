@@ -21,7 +21,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import frc.robot.commands.drivetrain.AppDriveRobotCommand;
+import frc.robot.commands.drivetrain.AppGoToServiceCommand;
 import frc.robot.commands.drivetrain.OnTheFly;
 import frc.robot.commands.hotlineblink.AllianceColorCommand;
 import frc.robot.input.AttackThree;
@@ -128,13 +131,16 @@ public class RobotContainer {
 
 
         // Controller Bindings
+
+        driverXboxController.aButton.whileTrue(new RunCommand(()-> drivetrainSubsystem.goToTag(5)));
+        driverXboxController.bButton.whileTrue(new AppGoToServiceCommand(this));
         
 
-        driverXboxController.aButton.onTrue(new InstantCommand(()-> limeLightSubsystem.setPipeline(0)));
+        // driverXboxController.aButton.onTrue(new InstantCommand(()-> limeLightSubsystem.setPipeline(0)));
 
-        driverXboxController.bButton.onTrue(new InstantCommand(()-> limeLightSubsystem.setPipeline(1)));
+        // driverXboxController.bButton.onTrue(new InstantCommand(()-> limeLightSubsystem.setPipeline(1)));
 
-        driverXboxController.yButton.onTrue(new InstantCommand(()-> limeLightSubsystem.setPipeline(2)));
+        // driverXboxController.yButton.onTrue(new InstantCommand(()-> limeLightSubsystem.setPipeline(2)));
 
         rightStick.leftFaceButton.onTrue(new OnTheFly(this, 
              new PathConstraints(2, 1), "Pos7"));
@@ -205,11 +211,16 @@ public class RobotContainer {
         // );
 
         // Arcade Controller
-        drivetrainSubsystem.setDefaultCommand(
-            new RunCommand(
-                ()-> drivetrainSubsystem.arcadeDrive(driverXboxController.getLeftStickY(), driverXboxController.getRightStickX(), false), drivetrainSubsystem
-            )
-        );
+        // drivetrainSubsystem.setDefaultCommand(
+        //     new RunCommand(
+        //         ()-> drivetrainSubsystem.arcadeDrive(driverXboxController.getLeftStickY(), driverXboxController.getRightStickX(), false), drivetrainSubsystem
+        //     )
+        // );
+
+        // drivetrainSubsystem.setDefaultCommand(new AppDriveRobotCommand(this));
+        drivetrainSubsystem.setDefaultCommand(new AppGoToServiceCommand(this));
+        
+        // drivetrainSubsystem.setDefaultCommand(new ParallelCommandGroup(new AppDriveRobotCommand(this), new AppGoToServiceCommand(this)));
 
         // Single Arcade Controller
         // drivetrainSubsystem.setDefaultCommand(

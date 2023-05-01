@@ -14,6 +14,7 @@ import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.PathPoint;
 import com.pathplanner.lib.commands.PPRamseteCommand;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.RamseteController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -407,6 +408,42 @@ public class DrivetrainSubsystem extends PIDSubsystem {
         return 0;
     }
 
+    public void driveApp(String direction) {
+        switch(direction) {
+            case "STOP":
+              westCoastDrive(0, 0, false);
+      
+              break;
+      
+            case "Forward":
+      
+              westCoastDrive(0.15, 0.15, false);
+      
+              break;
+      
+            case "Back":
+              westCoastDrive(-0.15, -0.15, false);
+      
+              break;
+      
+            case "Left":
+              westCoastDrive(-0.175, 0.175, false);
+      
+              break;
+      
+            case "Right":
+              westCoastDrive(0.175, -0.175, false);
+      
+              break;
+      
+            default:
+              westCoastDrive(0, 0, false);
+      
+              break;
+      
+          }
+    }
+
     /**
      * Get the position of the robot relative to the starting position
      *
@@ -414,5 +451,41 @@ public class DrivetrainSubsystem extends PIDSubsystem {
      */
     public Pose2d getPose() {
         return odometry.getPoseMeters();
+    }
+
+
+    double distanceError = 0;
+
+    public void goToTag(double distThreshold){
+        double distance = 12;
+        double kDist = 0.01;
+        double kp = 0.01;
+        double minTurn = 0.025;
+        double minDist = 0.07;
+        double tx = limeLight.degreesAskew();
+        double distance_adjust = 0.0;
+        distanceError = -(limeLight.area - distance);
+        if(Math.abs(distanceError) > distThreshold){
+            if(distanceError<0){
+                distance_adjust = kDist * distanceError - minDist;
+            } else {
+                distance_adjust = kDist * distanceError + minDist;
+            }
+        }
+        double steering_adjust = 0;
+        if(Math.abs(tx)>5){
+            if(tx < 0){
+                steering_adjust = kp * tx - minTurn;
+            } else {
+                steering_adjust = kp * tx + minTurn;
+            }
+        }
+        distance_adjust = MathUtil.clamp(distance_adjust, -0.5, 0.5);
+        if (limeLight.targetFound())
+            westCoastDrive(steering_adjust+distance_adjust, -steering_adjust+distance_adjust, false);
+    }
+
+    public boolean getInRange(double distThreshold) {
+        return Math.abs(distanceError) < distThreshold;
     }
 }
