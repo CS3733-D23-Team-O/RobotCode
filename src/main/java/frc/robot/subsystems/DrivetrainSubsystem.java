@@ -14,6 +14,7 @@ import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.PathPoint;
 import com.pathplanner.lib.commands.PPRamseteCommand;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.RamseteController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -38,20 +39,19 @@ import edu.wpi.first.wpilibj2.command.PIDSubsystem;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.DrivetrainConstants;
-import frc.robot.commands.collector.CollectCommand;
 
 public class DrivetrainSubsystem extends PIDSubsystem {
 
     public final WPI_TalonFX leftLeader = new WPI_TalonFX(DrivetrainConstants.LEFT_LEADER_CHANNEL);
-    private final WPI_TalonFX leftFollower = new WPI_TalonFX(DrivetrainConstants.LEFT_FOLLOWER_CHANNEL);
+    // private final WPI_TalonFX leftFollower = new WPI_TalonFX(DrivetrainConstants.LEFT_FOLLOWER_CHANNEL);
 
     public final WPI_TalonFX rightLeader = new WPI_TalonFX(DrivetrainConstants.RIGHT_LEADER_CHANNEL);
-    private final WPI_TalonFX rightFollower = new WPI_TalonFX(DrivetrainConstants.RIGHT_FOLLOWER_CHANNEL);
+    // private final WPI_TalonFX rightFollower = new WPI_TalonFX(DrivetrainConstants.RIGHT_FOLLOWER_CHANNEL);
 
-    private final MotorControllerGroup leftSide = new MotorControllerGroup(leftLeader, leftFollower);
-    private final MotorControllerGroup rightSide = new MotorControllerGroup(rightLeader, rightFollower);
+    // private final MotorControllerGroup leftSide = new MotorControllerGroup(leftLeader, leftFollower);
+    // private final MotorControllerGroup rightSide = new MotorControllerGroup(rightLeader, rightFollower);
 
-    public final DifferentialDrive differentialDrive = new DifferentialDrive(leftSide, rightSide);
+    public final DifferentialDrive differentialDrive = new DifferentialDrive(leftLeader, rightLeader);
 
     // Objects for PID tracking
     public final AHRS navx = new AHRS(SPI.Port.kMXP);
@@ -80,26 +80,26 @@ public class DrivetrainSubsystem extends PIDSubsystem {
         limeLight = robotContainer.limeLightSubsystem;
         // Reset configuration to defaults
         leftLeader.configFactoryDefault();
-        leftFollower.configFactoryDefault();
+        // leftFollower.configFactoryDefault();
         rightLeader.configFactoryDefault();
-        rightFollower.configFactoryDefault();
+        // rightFollower.configFactoryDefault();
 
         // Configure the Followers
-        leftFollower.follow(leftLeader);
-        rightFollower.follow(rightLeader);
+        // leftFollower.follow(leftLeader);
+        // rightFollower.follow(rightLeader);
 
         // Configure invert type on the motors
-        leftLeader.setInverted(true);
-        leftFollower.setInverted(true);
         // leftLeader.setInverted(true);
         // leftFollower.setInverted(true);
+        leftLeader.setInverted(true);
+        // leftFollower.setInverted(true);
         rightLeader.setInverted(false);
-        rightFollower.setInverted(false);
+        // rightFollower.setInverted(false);
 
-        leftFollower.setStatusFramePeriod(1, 255);
-        rightFollower.setStatusFramePeriod(1, 255);
-        leftFollower.setStatusFramePeriod(2, 255);
-        rightFollower.setStatusFramePeriod(2, 255);
+        // leftFollower.setStatusFramePeriod(1, 255);
+        // rightFollower.setStatusFramePeriod(1, 255);
+        // leftFollower.setStatusFramePeriod(2, 255);
+        // rightFollower.setStatusFramePeriod(2, 255);
 
         // Set Break Mode
         setBreakMode();
@@ -148,9 +148,9 @@ public class DrivetrainSubsystem extends PIDSubsystem {
     public void periodic() {
 
         SmartDashboard.putNumber("Left Drive Encoder", leftLeader.getSelectedSensorPosition());
-        SmartDashboard.putNumber("Left Follower Drive Encoder", leftFollower.getSelectedSensorPosition());
+        // SmartDashboard.putNumber("Left Follower Drive Encoder", leftFollower.getSelectedSensorPosition());
         SmartDashboard.putNumber("Right Drive Encoder", rightLeader.getSelectedSensorPosition());
-        SmartDashboard.putNumber("Right Follower Drive Encoder", rightFollower.getSelectedSensorPosition());
+        // SmartDashboard.putNumber("Right Follower Drive Encoder", rightFollower.getSelectedSensorPosition());
         SmartDashboard.putNumber("Difference Meters",
                 Math.abs(getDistanceMeters(leftLeader) - getDistanceMeters(rightLeader)));
         SmartDashboard.putNumber("Get left wheel speed", leftLeader.getSelectedSensorVelocity());
@@ -241,8 +241,8 @@ public class DrivetrainSubsystem extends PIDSubsystem {
     public void setBreakMode() {
         leftLeader.setNeutralMode(NeutralMode.Brake);
         rightLeader.setNeutralMode(NeutralMode.Brake);
-        leftFollower.setNeutralMode(NeutralMode.Brake);
-        rightFollower.setNeutralMode(NeutralMode.Brake);
+        // leftFollower.setNeutralMode(NeutralMode.Brake);
+        // rightFollower.setNeutralMode(NeutralMode.Brake);
     }
 
     /**
@@ -251,8 +251,8 @@ public class DrivetrainSubsystem extends PIDSubsystem {
     public void setCoastMode() {
         leftLeader.setNeutralMode(NeutralMode.Coast);
         rightLeader.setNeutralMode(NeutralMode.Coast);
-        leftFollower.setNeutralMode(NeutralMode.Coast);
-        rightFollower.setNeutralMode(NeutralMode.Coast);
+        // leftFollower.setNeutralMode(NeutralMode.Coast);
+        // rightFollower.setNeutralMode(NeutralMode.Coast);
     }
 
     /**
@@ -261,8 +261,8 @@ public class DrivetrainSubsystem extends PIDSubsystem {
     private void resetEncoders() {
         leftLeader.setSelectedSensorPosition(0);
         rightLeader.setSelectedSensorPosition(0);
-        leftFollower.setSelectedSensorPosition(0);
-        rightFollower.setSelectedSensorPosition(0);
+        // leftFollower.setSelectedSensorPosition(0);
+        // rightFollower.setSelectedSensorPosition(0);
     }
 
     /**
@@ -393,9 +393,9 @@ public class DrivetrainSubsystem extends PIDSubsystem {
      */
     public void tankDriveVolts(double leftVolts, double rightVolts) {
         leftLeader.setVoltage(leftVolts);
-        leftFollower.setVoltage(leftVolts);
+        // leftFollower.setVoltage(leftVolts);
         rightLeader.setVoltage(rightVolts);
-        rightFollower.setVoltage(rightVolts);
+        // rightFollower.setVoltage(rightVolts);
         differentialDrive.feed();
     }
 
@@ -408,6 +408,42 @@ public class DrivetrainSubsystem extends PIDSubsystem {
         return 0;
     }
 
+    public void driveApp(String direction) {
+        switch(direction) {
+            case "STOP":
+              westCoastDrive(0, 0, false);
+      
+              break;
+      
+            case "Forward":
+      
+              westCoastDrive(0.15, 0.15, false);
+      
+              break;
+      
+            case "Back":
+              westCoastDrive(-0.15, -0.15, false);
+      
+              break;
+      
+            case "Left":
+              westCoastDrive(-0.175, 0.175, false);
+      
+              break;
+      
+            case "Right":
+              westCoastDrive(0.175, -0.175, false);
+      
+              break;
+      
+            default:
+              westCoastDrive(0, 0, false);
+      
+              break;
+      
+          }
+    }
+
     /**
      * Get the position of the robot relative to the starting position
      *
@@ -415,5 +451,41 @@ public class DrivetrainSubsystem extends PIDSubsystem {
      */
     public Pose2d getPose() {
         return odometry.getPoseMeters();
+    }
+
+
+    double distanceError = 0;
+
+    public void goToTag(double distThreshold){
+        double distance = 12;
+        double kDist = 0.01;
+        double kp = 0.01;
+        double minTurn = 0.02;
+        double minDist = 0.07;
+        double tx = limeLight.degreesAskew();
+        double distance_adjust = 0.0;
+        distanceError = -(limeLight.area - distance);
+        if(Math.abs(distanceError) > distThreshold){
+            if(distanceError<0){
+                distance_adjust = kDist * distanceError - minDist;
+            } else {
+                distance_adjust = kDist * distanceError + minDist;
+            }
+        }
+        double steering_adjust = 0;
+        if(Math.abs(tx)>5){
+            if(tx < 0){
+                steering_adjust = kp * tx - minTurn;
+            } else {
+                steering_adjust = kp * tx + minTurn;
+            }
+        }
+        distance_adjust = MathUtil.clamp(distance_adjust, -0.5, 0.5);
+        if (limeLight.targetFound())
+            westCoastDrive(steering_adjust+distance_adjust, -steering_adjust+distance_adjust, false);
+    }
+
+    public boolean getInRange(double distThreshold) {
+        return Math.abs(distanceError) < distThreshold;
     }
 }

@@ -6,7 +6,9 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.cscore.MjpegServer;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -89,6 +91,18 @@ public class LimeLightSubsystem extends SubsystemBase {
     return xyYaw;
   }
 
+  public double getTX(){
+    return limeLightTable.getEntry("tx").getDouble(0.0);
+  }
+  
+  public double getTY(){
+    return limeLightTable.getEntry("ty").getDouble(0.0);
+  }
+
+  public double getTA(){
+    return limeLightTable.getEntry("ta").getDouble(0.0);
+  }
+
   public double[] translateBlue(double[] xyYaw) {
     double[] result = xyYaw;
     result[0] += 8.25;
@@ -111,18 +125,19 @@ public class LimeLightSubsystem extends SubsystemBase {
     x = targetX.getDouble(0.0);
     y = targetY.getDouble(0.0);
     area = targetArea.getDouble(0.0);
+    v = targetV.getDouble(0.0);
     double[] pose = botpose.getDoubleArray(new double[6]);
 
     //post to smart dashboard periodically
     SmartDashboard.putNumber("LimelightX", x);
     SmartDashboard.putNumber("LimelightY", y);
     SmartDashboard.putNumber("LimelightArea", area);
-    SmartDashboard.putNumberArray("LimelightTID", getTID().getDoubleArray(new double[6]));
+    SmartDashboard.putNumber("LimelightTID", getTID().getDouble(0));
     SmartDashboard.putBoolean("targetExists", foundTarget());
     SmartDashboard.putNumberArray("botpose", pose);
     if (getAprilTagPose() == null) return;
-    SmartDashboard.putNumberArray("botpose_blue", translateBlue(getAprilTagPose()));
-    SmartDashboard.putNumberArray("botpose_red", translateRed(getAprilTagPose()));
+    // SmartDashboard.putNumberArray("botpose_blue", translateBlue(getAprilTagPose()));
+    // SmartDashboard.putNumberArray("botpose_red", translateRed(getAprilTagPose()));
     
     
   }
@@ -185,5 +200,22 @@ public class LimeLightSubsystem extends SubsystemBase {
   @Override
   public void simulationPeriodic() {
     // This method will be called once per scheduler run during simulation
+  }
+
+  public double getAprilTagDistance(){
+    // how many degrees back is your limelight rotated from perfectly vertical?
+    double limelightMountAngleDegrees = 0;//UPDATE
+
+    // distance from the center of the Limelight lens to the floor
+    double limelightLensHeightInches = 21.5;//UPDATE
+
+    // distance from the target to the floor
+    double goalHeightInches = 32.5;//UPDATE
+
+    double angleToGoalDegrees = limelightMountAngleDegrees + targetY.getDouble(0.0);
+    double angleToGoalRadians = angleToGoalDegrees * (3.14159 / 180.0);
+
+    //calculate distance
+    return (goalHeightInches - limelightLensHeightInches)/Math.tan(angleToGoalRadians);
   }
 }

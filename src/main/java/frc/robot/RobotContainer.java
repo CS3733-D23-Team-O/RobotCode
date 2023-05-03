@@ -13,39 +13,27 @@ import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.PathPoint;
 
 import edu.wpi.first.cscore.UsbCamera;
-import edu.wpi.first.cscore.VideoException;
-import edu.wpi.first.cscore.VideoSource;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.Compressor;
-import edu.wpi.first.wpilibj.PneumaticHub;
-import edu.wpi.first.wpilibj.PneumaticsControlModule;
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.button.POVButton;
-import frc.robot.commands.Turret.TurretSetpointCommand;
-import frc.robot.commands.auto.threeBallAutoStraight.threeBallAutoStraight;
-import frc.robot.commands.auto.twoBallAuto.twoBallAuto;
-import frc.robot.commands.collector.AutomateBallpathCommand;
-import frc.robot.commands.drivetrain.DefaultTankDriveCommand;
+import frc.robot.commands.drivetrain.AppDriveRobotCommand;
+import frc.robot.commands.drivetrain.AppGoToServiceCommand;
 import frc.robot.commands.drivetrain.OnTheFly;
 import frc.robot.commands.hotlineblink.AllianceColorCommand;
 import frc.robot.input.AttackThree;
 import frc.robot.input.AttackThree.AttackThreeAxis;
 import frc.robot.input.XboxOneController;
-import frc.robot.subsystems.ClimberSubsystem;
-import frc.robot.subsystems.CollectorSubsystem;
+import frc.robot.subsystems.AppDataSubsystem;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.HotlineBlinkSubsystem;
 import frc.robot.subsystems.LimeLightSubsystem;
-import frc.robot.subsystems.ShooterSubsystem;
-import frc.robot.subsystems.TurretSubsystem;
 
 /**
 * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -66,11 +54,12 @@ public class RobotContainer {
     /*
     * Subsystems
     */
-   
-    public final CollectorSubsystem collectorSubsystem = new CollectorSubsystem();
+
 
     public final LimeLightSubsystem limeLightSubsystem =
             new LimeLightSubsystem();
+
+    public final AppDataSubsystem appDataSubsystem = new AppDataSubsystem();
 
      public final DrivetrainSubsystem drivetrainSubsystem =
             new DrivetrainSubsystem(
@@ -78,16 +67,6 @@ public class RobotContainer {
                     Constants.DrivetrainConstants.I,
                     Constants.DrivetrainConstants.D,
                     this);        
-    public final TurretSubsystem turretSubsystem =
-            new TurretSubsystem(
-                Constants.TurretConstants.P,
-                Constants.TurretConstants.I,
-                Constants.TurretConstants.D,
-                limeLightSubsystem);
-
-    public final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
-
-    public final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
 
     public final HotlineBlinkSubsystem hotlineBlinkSubsystem = new HotlineBlinkSubsystem();
 
@@ -95,20 +74,9 @@ public class RobotContainer {
 
 
     
-    // Compressor
-    public final Compressor compressor = new Compressor(1, PneumaticsModuleType.CTREPCM);
-    public boolean compressorEnabled = compressor.isEnabled();
-    public boolean compressorPressureSwitch = compressor.getPressureSwitchValue();
-    public double compressorCurrent = compressor.getCurrent();
+    
 
     public final PowerDistribution pdh = new PowerDistribution(10, ModuleType.kRev);
-
-    public final PneumaticHub pneumaticHub = new PneumaticHub(1);
-    public final PneumaticsControlModule pcm = new PneumaticsControlModule();
-
-    public double getX = 0;
-    public double getY = 0;
-    public double getRot = 0;
 
 
     /*
@@ -120,8 +88,6 @@ public class RobotContainer {
             new AttackThree(Constants.InputConstants.RIGHT_JOYSTICK_CHANNEL);
     public final XboxOneController driverXboxController =
             new XboxOneController(Constants.InputConstants.XBOX_CHANNEL);
-    //  public final ButtonBoxLeft buttonBoxLeft = new ButtonBoxLeft(2);
-    // public final ButtonBoxRight buttonBoxRight = new ButtonBoxRight(3);
 
 
     /**
@@ -135,8 +101,8 @@ public class RobotContainer {
             shooterRPMChooser.addOption(""+i+ " RPM", i);
         }
         */
-        autoModeChooser.setDefaultOption("2 Ball Auto", new twoBallAuto(this));
-        autoModeChooser.addOption("3 Ball Straight Auto", new threeBallAutoStraight(this));
+        autoModeChooser.setDefaultOption("dD Nothing", new InstantCommand());
+        autoModeChooser.addOption("AAHHHH", new RunCommand(()-> drivetrainSubsystem.westCoastDrive(0.2, 0.2, false)).withTimeout(2));
 
 
         SmartDashboard.putData("AutoModeChooser", autoModeChooser);
@@ -155,47 +121,26 @@ public class RobotContainer {
 
         // Left Stick Bindings
 
-        leftStick.triggerButton.whenPressed(new InstantCommand(()-> collectorSubsystem.toggleCollector(.75), collectorSubsystem));
-        leftStick.triggerButton.whenPressed(new AutomateBallpathCommand(this));
 
         // leftStick.triggerButton.whenPressed(new ToggleCollectorCommandGroup(this, 0.75));
         
-        // Until interupt / timeout may fix stuff
-        leftStick.middleFaceButton.whenPressed(new InstantCommand(()->  collectorSubsystem.collect(0.75)));
-        leftStick.middleFaceButton.whenPressed(new AutomateBallpathCommand(this));
-
-        leftStick.bottomFaceButton.whenHeld(new RunCommand(()-> collectorSubsystem.collect(-0.75)))
-            .whenReleased(new InstantCommand(()-> collectorSubsystem.collect(0))); 
-
         
-        rightStick.triggerButton.whenHeld(new RunCommand(()-> collectorSubsystem.upperBallPath(.7), collectorSubsystem))
-            .whenReleased(new InstantCommand(()-> collectorSubsystem.upperBallPath(0), collectorSubsystem));
 
 
         
 
 
         // Controller Bindings
-        driverXboxController.selectButton.whenPressed(new InstantCommand(()-> climberSubsystem.togglePivot()));
+
+        driverXboxController.aButton.whileTrue(new RunCommand(()-> drivetrainSubsystem.goToTag(5)));
+        driverXboxController.bButton.whileTrue(new AppGoToServiceCommand(this));
         
 
-        new POVButton(driverXboxController, 0)
-            .whenPressed(new TurretSetpointCommand(this, 0));
+        // driverXboxController.aButton.onTrue(new InstantCommand(()-> limeLightSubsystem.setPipeline(0)));
 
-        new POVButton(driverXboxController, 90)
-            .whenPressed(new TurretSetpointCommand(this, turretSubsystem.degreesToTicks(90)));
+        // driverXboxController.bButton.onTrue(new InstantCommand(()-> limeLightSubsystem.setPipeline(1)));
 
-        new POVButton(driverXboxController, 180)
-            .whenPressed(new TurretSetpointCommand(this, turretSubsystem.degreesToTicks(180)));
-
-        new POVButton(driverXboxController, 270)
-            .whenPressed(new TurretSetpointCommand(this, turretSubsystem.degreesToTicks(-90)));
-
-        driverXboxController.aButton.onTrue(new InstantCommand(()-> limeLightSubsystem.setPipeline(0)));
-
-        driverXboxController.bButton.onTrue(new InstantCommand(()-> limeLightSubsystem.setPipeline(1)));
-
-        driverXboxController.yButton.onTrue(new InstantCommand(()-> limeLightSubsystem.setPipeline(2)));
+        // driverXboxController.yButton.onTrue(new InstantCommand(()-> limeLightSubsystem.setPipeline(2)));
 
         rightStick.leftFaceButton.onTrue(new OnTheFly(this, 
              new PathConstraints(2, 1), "Pos7"));
@@ -235,8 +180,9 @@ public class RobotContainer {
         // return new PathPlannerFollowCommand(this, true, "Test_Path");
         //return new PathPlannerFollowCommand(this, false, "Pose7 Auto");
         //return drivetrainSubsystem.followTrajectoryCommand(autoPath, true);
-         return new OnTheFly(this,
-                 new PathConstraints(1, 1), "Pos7");
+        return autoModeChooser.getSelected();
+        //  return new OnTheFly(this,
+        //          new PathConstraints(1, 1), "Pos7");
     }
 
     public void setDefaultCommands() {
@@ -244,11 +190,11 @@ public class RobotContainer {
         //drivetrainSubsystem.setDefaultCommand(new DefaultTankDriveCommand(this));
 
         // Tank Joystick
-         drivetrainSubsystem.setDefaultCommand(
-             new RunCommand(
-                 ()-> drivetrainSubsystem.westCoastDrive(leftStick.getAxis(AttackThreeAxis.Y), rightStick.getAxis(AttackThreeAxis.Y), true), drivetrainSubsystem
-             )
-         );
+        //  drivetrainSubsystem.setDefaultCommand(
+        //      new RunCommand(
+        //          ()-> drivetrainSubsystem.arcadeDrive(leftStick.getAxis(AttackThreeAxis.Y), rightStick.getAxis(AttackThreeAxis.Y), true), drivetrainSubsystem
+        //      )
+        //  );
 
         // Tank Controller
         // drivetrainSubsystem.setDefaultCommand(
@@ -261,7 +207,7 @@ public class RobotContainer {
         // drivetrainSubsystem.setDefaultCommand(
         //     new RunCommand(
         //         ()-> drivetrainSubsystem.arcadeDrive(leftStick.getAxis(AttackThreeAxis.Y), rightStick.getAxis(AttackThreeAxis.X), true), drivetrainSubsystem
-        //     )
+        //     )[\]
         // );
 
         // Arcade Controller
@@ -270,6 +216,11 @@ public class RobotContainer {
         //         ()-> drivetrainSubsystem.arcadeDrive(driverXboxController.getLeftStickY(), driverXboxController.getRightStickX(), false), drivetrainSubsystem
         //     )
         // );
+
+        // drivetrainSubsystem.setDefaultCommand(new AppDriveRobotCommand(this));
+        drivetrainSubsystem.setDefaultCommand(new AppGoToServiceCommand(this));
+        
+        // drivetrainSubsystem.setDefaultCommand(new ParallelCommandGroup(new AppDriveRobotCommand(this), new AppGoToServiceCommand(this)));
 
         // Single Arcade Controller
         // drivetrainSubsystem.setDefaultCommand(
@@ -290,44 +241,8 @@ public class RobotContainer {
     }
 
     public void periodic() {
-        // if (!climberSubsystem.getTogglePivot() && turretSubsystem.getPivotTolerance()) {
-        //     climberSubsystem.leftPivotActuate(true);
-        //     climberSubsystem.rightPivotActuate(true);
-        // } else if (!climberSubsystem.getTogglePivot()) {
-        //     climberSubsystem.leftPivotActuate(false);
-        //     climberSubsystem.rightPivotActuate(false);
-        // }
+ 
         initialPoint = new PathPoint(drivetrainSubsystem.getPose().getTranslation(), Rotation2d.fromDegrees(drivetrainSubsystem.navx.getAngle()));
     }
 
-    /**
-    * Initializes the camera(s)
-    */
-   public void initializeCamera() {
-    try {
-
-      // Intake
-    //   camera1 = CameraServer.startAutomaticCapture();
-    //   camera1.setConnectionStrategy(VideoSource.ConnectionStrategy.kKeepOpen);
-    //   camera1.setResolution(176, 144);
-    //   camera1.setFPS(15); // Can go up to 30
-    //   camera1.setBrightness(25);
-    //   camera1.setExposureManual(10);
-    //   camera1.setWhiteBalanceManual(10);
-      
-      /*
-      // intake
-      camera2 = CameraServer.startAutomaticCapture();
-      camera2.setConnectionStrategy(VideoSource.ConnectionStrategy.kKeepOpen);
-      camera2.setResolution(176, 144);
-      camera2.setFPS(15); // Can go up to 30
-      camera2.setBrightness(25);
-      camera2.setExposureManual(10);
-      camera2.setWhiteBalanceManual(10);
-      */
-
-    } catch (VideoException e) {
-      e.printStackTrace();
-    }
-   }
 }

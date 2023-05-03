@@ -40,15 +40,10 @@ public class Robot extends TimedRobot {
         // driveMethodChooser.addOption("Curvature", DRIVE_STYLE.MCFLY);
         // driveMethodChooser.setDefaultOption("Arcade", DRIVE_STYLE.ARCADE);
         // SmartDashboard.putData("Drive Method", driveMethodChooser);
-
-        // robotContainer.compressor.enableDigital();
-        robotContainer.compressor.enableAnalog(90, 115);
         robotContainer.limeLightSubsystem.setVision(false);
         
-        robotContainer.turretSubsystem.resetEncoder(robotContainer.turretSubsystem.degreesToTicks(-180));
-        robotContainer.shooterSubsystem.resetHood(27);
+        
         robotContainer.setDefaultCommands();
-        robotContainer.climberSubsystem.resetClimberPos();
         PathPlannerServer.startServer(5811);
         // robotContainer.turretSubsystem.disable();
     }
@@ -111,10 +106,10 @@ public class Robot extends TimedRobot {
             defaultAutonomousCommand.cancel();
         }
         // robotContainer.compressor.enableAnalog(90, 120);
-        robotContainer.climberSubsystem.resetClimberPos();
         // robotContainer.climberSubsystem.leftPivotActuate(true);
         // robotContainer.climberSubsystem.rightPivotActuate(true);
         robotContainer.limeLightSubsystem.setVision(false);
+        robotContainer.appDataSubsystem.setX(69);
 
 
         /*
