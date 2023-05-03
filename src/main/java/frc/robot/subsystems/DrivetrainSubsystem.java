@@ -460,7 +460,7 @@ public class DrivetrainSubsystem extends PIDSubsystem {
         double distance = 12;
         double kDist = 0.01;
         double kp = 0.01;
-        double minTurn = 0.025;
+        double minTurn = 0.02;
         double minDist = 0.07;
         double tx = limeLight.degreesAskew();
         double distance_adjust = 0.0;

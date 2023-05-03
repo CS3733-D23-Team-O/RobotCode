@@ -112,6 +112,9 @@ public class AppDataSubsystem extends SubsystemBase {
       case "75 Lobby":
         return 4;
 
+      case "75 Lobby Valet Cashier":
+        return 1;
+
       default:
 
         return -1;
